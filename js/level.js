@@ -6,7 +6,7 @@ export const FORMAT = 'rk-noid-level@1';
 
 export const CELL_W = 1.0;   // brick width  (x)
 export const CELL_D = 0.5;   // brick depth  (z)
-export const BRICK_H = 0.45; // brick height (y) - one stack layer
+export const BRICK_H = 0.55; // brick height (y) - one stack layer
 
 // Behaviour of each brick type.
 //   hits      - how many hits to destroy (overridable per legend entry)
@@ -151,6 +151,14 @@ export function parseLevel(json) {
     if (d.drop === 'laser') laserSources++;
   }
   if (!required) errors.push(t('v.noBricks'));
+  // Steel never breaks, so anything stacked above it can never be cleared.
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const st = stacks[r][c];
+      const steelAt = st.findIndex((d) => d.type === 'steel');
+      if (steelAt >= 0 && st.slice(steelAt + 1).some((d) => d.counts)) errors.push(t('v.onSteel', { r, c }));
+    }
+  }
   // Projectiles fly straight from the bat toward the back wall, so an armored
   // brick with indestructible steel anywhere in front of it can never be cleared.
   for (let c = 0; c < cols; c++) {

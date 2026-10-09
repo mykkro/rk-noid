@@ -1,0 +1,58 @@
+{
+  "format": "rk-noid-level@1",
+  "name": "Pyramids",
+  "author": "rk/noid",
+  "description": "Three stepped pyramids. Peel them layer by layer and mind the explosive heart and the nests in their cores.",
+  "i18n": {
+    "cs": { "name": "Pyramidy", "description": "Tři stupňovité pyramidy. Rozebírej je vrstvu po vrstvě a dej pozor na výbušné srdce a hnízda v jejich jádru." }
+  },
+  "cols": 15,
+  "rows": 10,
+  "settings": {
+    "ballSpeed": 9,
+    "ballSpeedMax": 13.5,
+    "bonusChance": 0.07,
+    "critterSpeed": 1.9,
+    "floorColor": "#ffe8c0",
+    "wallColor": "#ffe0b0"
+  },
+  "legend": {},
+  "layers": [
+    [
+      "yyyyy.....yyyyy",
+      "yyy?y.....yyy?y",
+      "yy@yy.....yy@yy",
+      "y?yyyyyyyyy?yyy",
+      "yyyyyyyy?yyyyyy",
+      ".....yyXyy.....",
+      ".....y?yyy.....",
+      ".....yyyyy.....",
+      "..H.........H..",
+      "..............."
+    ],
+    [
+      "...............",
+      ".ooo.......ooo.",
+      ".ooo.......ooo.",
+      ".ooo.......ooo.",
+      "......ooo......",
+      "......ooo......",
+      "......ooo......",
+      "...............",
+      "..H.........H..",
+      "..............."
+    ],
+    [
+      "...............",
+      "...............",
+      "..K.........K..",
+      "...............",
+      "...............",
+      ".......K.......",
+      "...............",
+      "...............",
+      "..w.........w..",
+      "..............."
+    ]
+  ]
+}

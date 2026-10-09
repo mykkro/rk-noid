@@ -107,6 +107,7 @@ const STRINGS = {
     'v.noBricks': 'Level has no destructible bricks - it would be cleared instantly',
     'v.shielded': 'Armored brick at row {r}, col {c} is shielded by steel at row {r2} - lasers can never reach it',
     'v.noLaser': 'Armored bricks but no guaranteed laser drop (a pity laser will appear when only armored bricks remain)',
+    'v.onSteel': 'Brick stacked on steel at row {r}, col {c} can never be cleared',
 
     // ---------------------------------------------------------------- editor
     'ed.pageTitle': 'rk/noid level editor',
@@ -314,6 +315,7 @@ const STRINGS = {
     'v.noBricks': 'Úroveň nemá žádné zničitelné cihly – byla by hned dokončená',
     'v.shielded': 'Pancéřovaná cihla na řádku {r}, sloupci {c} je krytá ocelí na řádku {r2} – laser ji nikdy nezasáhne',
     'v.noLaser': 'Pancéřované cihly bez zaručeného laseru (záložní laser se objeví, až zbudou jen pancéřované cihly)',
+    'v.onSteel': 'Cihla položená na oceli na řádku {r}, sloupci {c} nikdy nepůjde rozbít',
 
     'ed.pageTitle': 'rk/noid – editor úrovní',
     'ed.title': 'Editor úrovní',

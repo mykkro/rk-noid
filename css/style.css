@@ -101,35 +101,49 @@ kbd {
 
 /* ---------- menu */
 .menu { background: linear-gradient(90deg, rgba(5, 3, 20, 0.7), rgba(5, 3, 20, 0.15) 60%, rgba(5, 3, 20, 0.5)); overflow-y: auto; align-items: flex-start; }
-.menu-inner { width: min(980px, 100% - 32px); margin: 24px auto; }
-.logo { display: block; width: min(560px, 90%); margin: 0 auto 10px; filter: drop-shadow(0 8px 24px rgba(70, 200, 255, 0.35)); }
-.menu-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 16px; }
+.menu-inner { width: min(1000px, 100% - 32px); margin: clamp(6px, 2vh, 24px) auto; }
+.logo { display: block; height: clamp(60px, 15vh, 160px); width: auto; max-width: 90%; margin: 0 auto clamp(2px, 1vh, 10px);
+  filter: drop-shadow(0 8px 24px rgba(70, 200, 255, 0.35)); }
+.menu-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 14px; align-items: start; }
+.menu .panel { padding: 12px 16px; }
+.menu .panel h3 { margin: 10px 0 6px; }
+.menu .howto h3:first-child { margin-top: 2px; }
+.menu .btn.big { font-size: 18px; padding: 9px; }
 @media (max-width: 760px) { .menu-cols { grid-template-columns: minmax(0, 1fr); } }
-.hi { margin-top: 8px; text-align: center; font-family: var(--mono); color: var(--dim); }
+.hi { margin-top: 6px; text-align: center; font-family: var(--mono); color: var(--dim); }
 .hi span { color: #ffd84a; }
-.level-list { display: flex; flex-direction: column; gap: 6px; }
-.level-btn { display: grid; grid-template-columns: 32px 1fr; grid-template-rows: auto auto; text-align: left; gap: 0 10px;
+.level-list { display: flex; flex-direction: column; gap: 4px; }
+.level-btn { display: grid; grid-template-columns: 26px minmax(0, 1fr); grid-template-rows: auto auto; text-align: left; gap: 0 10px;
   font: inherit; color: var(--ink); background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); border-radius: 8px;
-  padding: 8px 10px; cursor: pointer; }
+  padding: 4px 10px; cursor: pointer; }
 .level-btn:hover { border-color: var(--accent); background: rgba(70, 200, 255, 0.1); }
-.level-btn .num { grid-row: span 2; font-family: var(--mono); font-size: 24px; font-weight: 900; color: var(--accent); align-self: center; }
+.level-btn .num { grid-row: span 2; font-family: var(--mono); font-size: 20px; font-weight: 900; color: var(--accent); align-self: center; }
 .level-btn .name { font-weight: 700; }
-.level-btn .desc { font-size: 12px; color: var(--dim); }
+.level-btn .desc { font-size: 12px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .notice { margin-top: 10px; padding: 10px; border-radius: 8px; font-size: 13px; background: rgba(255, 120, 60, 0.15); border: 1px solid rgba(255, 120, 60, 0.5); }
-.howto p { margin: 0 0 8px; line-height: 1.45; font-size: 14px; }
+.howto p { margin: 0 0 6px; line-height: 1.35; font-size: 13px; }
 .legend, .caps { list-style: none; padding: 0; margin: 0; font-size: 13px; }
-.legend li { display: flex; gap: 8px; align-items: center; padding: 3px 0; }
+.legend { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.legend li { display: flex; gap: 8px; align-items: center; padding: 2px 0; }
+.legend li:last-child { grid-column: 1 / -1; }
 .sw { flex: none; width: 30px; height: 16px; border-radius: 3px; background: var(--c); box-shadow: inset 2px 2px 0 rgba(255,255,255,0.4), inset -2px -2px 0 rgba(0,0,0,0.35);
   font-style: normal; font-size: 11px; color: #000; text-align: center; line-height: 16px; font-weight: 900; }
 .sw.steel { background: linear-gradient(180deg, #c8d0da, #6c7480); }
 .sw.hazard { background: repeating-linear-gradient(45deg, #f2c400 0 5px, #151515 5px 10px); }
-.caps { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.caps { display: flex; flex-wrap: wrap; gap: 4px 12px; }
 .caps i { display: inline-block; width: 30px; margin-right: 5px; border-radius: 8px; text-align: center; font-style: normal;
   font-family: var(--mono); font-weight: 900; background: var(--c); color: #fff; text-shadow: 1px 1px 0 #000; }
-.keys { line-height: 2; }
-.credits { margin: 14px 0 8px; text-align: center; font-size: 12px; color: var(--dim); }
+.keys { line-height: 1.75; font-size: 13px; }
+.credits { margin: 8px 0 4px; text-align: center; font-size: 12px; color: var(--dim); }
 
 .fatal { position: fixed; inset: 30% 10% auto; padding: 20px; border-radius: 10px; background: #400; color: #fff; text-align: center; }
+
+/* short laptop screens: drop the parts that are repeated in the in-game help bar */
+.menu .row .btn { padding: 7px 10px; font-size: 14px; white-space: nowrap; }
+@media (max-height: 640px) {
+  .menu .controls-block, .credits { display: none; }
+  .logo { height: clamp(52px, 12vh, 90px); }
+}
 
 /* ---------- language switch */
 .lang-switch { display: inline-flex; align-self: center; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }

@@ -2,6 +2,8 @@
   "levels": [
     "01-first-light.json",
     "02-iron-curtain.json",
-    "03-the-hive.json"
+    "03-the-hive.json",
+    "04-pyramids.json",
+    "05-fortress.json"
   ]
 }

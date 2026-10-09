@@ -137,6 +137,8 @@ The hi-score is saved in your browser's `localStorage`.
 | 1 | **First Light** | Basic play, a few stacked bricks, bonus bricks, and a single critter nest in the middle of the field. |
 | 2 | **Iron Curtain** | Steel walls, a back line of armored plates and guaranteed **L** bricks. Lasers are required to finish. |
 | 3 | **The Hive** | Towers up to 4 high, explosives along the back, critter nests in every corner, and a nest sealed inside an armored core. Uses a custom legend entry (a pink hard brick that always drops multi-ball). |
+| 4 | **Pyramids** | Three stepped pyramids (stacks 1–3 high) with gold capstones, critter nests and an explosive heart in their cores, plus two obelisks guarding the front. |
+| 5 | **Fortress** | A steel fortress with one gate, explosive charges built into the walls, 4-high corner towers and an armored keep hiding a critter nest. Lasers required. |
 
 ![Arcade camera](assets/screenshots/gameplay-arcade.png)
 
@@ -256,6 +258,7 @@ The loader (`parseLevel` in `js/level.js`) reports **errors**, which block play 
 * grid size and layer shape, and unknown characters,
 * floating bricks,
 * a level with nothing destructible,
+* **bricks stacked on top of steel**: steel never breaks, so they could never be cleared. This is reported as an error.
 * **armored bricks with steel in front of them**: projectiles fly straight from the bat toward the back
   wall, so such a brick could never be destroyed. This is reported as an error.
 
