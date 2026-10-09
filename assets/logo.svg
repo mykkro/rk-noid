@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 660 230" width="660" height="230">
+  <title>rk/noid</title>
+  <defs>
+    <linearGradient id="face" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.45" stop-color="#9ff0ff"/>
+      <stop offset="0.55" stop-color="#46c8ff"/>
+      <stop offset="1" stop-color="#b34dff"/>
+    </linearGradient>
+    <linearGradient id="side" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3a1f7a"/>
+      <stop offset="1" stop-color="#140a33"/>
+    </linearGradient>
+    <g id="letters" font-family="'Arial Black','Segoe UI Black',Impact,'Helvetica Neue',sans-serif" font-weight="900" font-size="138">
+      <text x="22" y="150" textLength="168" lengthAdjust="spacingAndGlyphs">rk</text>
+      <text x="332" y="150" textLength="300" lengthAdjust="spacingAndGlyphs">noid</text>
+    </g>
+    <!-- the slash is drawn as ZX Spectrum rainbow stripes -->
+    <g id="slash">
+      <polygon points="262,34 286,34 222,152 198,152" fill="#e8302a"/>
+      <polygon points="286,34 300,34 236,152 222,152" fill="#f4d21c"/>
+      <polygon points="300,34 314,34 250,152 236,152" fill="#3fd23a"/>
+      <polygon points="314,34 328,34 264,152 250,152" fill="#22c8e0"/>
+    </g>
+  </defs>
+
+  <g transform="skewX(-8) translate(18 0)">
+    <!-- isometric extrusion: stacked copies stepping down-right -->
+    <g fill="url(#side)">
+      <use xlink:href="#letters" x="12" y="12"/>
+      <use xlink:href="#letters" x="11" y="11"/>
+      <use xlink:href="#letters" x="10" y="10"/>
+      <use xlink:href="#letters" x="9" y="9"/>
+      <use xlink:href="#letters" x="8" y="8"/>
+      <use xlink:href="#letters" x="7" y="7"/>
+      <use xlink:href="#letters" x="6" y="6"/>
+      <use xlink:href="#letters" x="5" y="5"/>
+      <use xlink:href="#letters" x="4" y="4"/>
+      <use xlink:href="#letters" x="3" y="3"/>
+      <use xlink:href="#letters" x="2" y="2"/>
+      <use xlink:href="#letters" x="1" y="1"/>
+    </g>
+    <g opacity="0.55">
+      <use xlink:href="#slash" x="12" y="12" style="filter:brightness(0.3)"/>
+      <use xlink:href="#slash" x="8" y="8" style="filter:brightness(0.4)"/>
+      <use xlink:href="#slash" x="4" y="4" style="filter:brightness(0.5)"/>
+    </g>
+    <use xlink:href="#slash"/>
+    <use xlink:href="#letters" fill="url(#face)" stroke="#1a0d40" stroke-width="3" stroke-linejoin="round"/>
+    <!-- specular glint -->
+    <use xlink:href="#letters" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.5" transform="translate(-1.5 -1.5)"/>
+  </g>
+
+  <!-- bat and ball -->
+  <g transform="translate(40 4)">
+    <ellipse cx="452" cy="205" rx="62" ry="6" fill="#000" opacity="0.35"/>
+    <rect x="400" y="182" width="104" height="18" rx="9" fill="#e7ebf5" stroke="#1a0d40" stroke-width="3"/>
+    <circle cx="404" cy="191" r="10" fill="#ee4050" stroke="#1a0d40" stroke-width="3"/>
+    <circle cx="500" cy="191" r="10" fill="#ee4050" stroke="#1a0d40" stroke-width="3"/>
+    <circle cx="560" cy="176" r="11" fill="#ffffff" stroke="#1a0d40" stroke-width="3"/>
+    <circle cx="556" cy="172" r="3.5" fill="#ffffff" stroke="none" opacity="0.9"/>
+    <path d="M 530 186 q 8 -6 18 -9" stroke="#9ff0ff" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
+  </g>
+  <text x="44" y="206" font-family="'Courier New',monospace" font-weight="700" font-size="15" letter-spacing="3" fill="#9ff0ff">ISOMETRIC BRICK BREAKER</text>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>rk/noid</title>
+  <polygon points="30,10 54,22 30,34 6,22" fill="#ff7a6a"/>
+  <polygon points="6,22 30,34 30,58 6,46" fill="#d63c32"/>
+  <polygon points="54,22 30,34 30,58 54,46" fill="#8e2620"/>
+  <polygon points="12,25 24,31 24,35 12,29" fill="#f4d21c"/>
+  <polygon points="12,30 24,36 24,40 12,34" fill="#3fd23a"/>
+  <polygon points="12,35 24,41 24,45 12,39" fill="#22c8e0"/>
+  <polygon points="30,10 54,22 30,34 6,22" fill="none" stroke="#1a0d40" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M6 22 V46 L30 58 L54 46 V22" fill="none" stroke="#1a0d40" stroke-width="2.5" stroke-linejoin="round"/>
+  <line x1="30" y1="34" x2="30" y2="58" stroke="#1a0d40" stroke-width="2"/>
+  <circle cx="51" cy="10" r="7" fill="#ffffff" stroke="#1a0d40" stroke-width="2.5"/>
+</svg>

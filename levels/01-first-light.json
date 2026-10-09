@@ -1,0 +1,50 @@
+{
+  "format": "rk-noid-level@1",
+  "name": "First Light",
+  "author": "rk/noid",
+  "description": "Warm-up. Stacked bricks drop when you knock out the one underneath. Watch the nest in the middle.",
+  "i18n": {
+    "cs": { "name": "První světlo", "description": "Rozcvička. Naskládané cihly spadnou, když vyrazíš tu pod nimi. Pozor na hnízdo uprostřed." }
+  },
+  "cols": 13,
+  "rows": 8,
+  "settings": {
+    "ballSpeed": 8,
+    "ballSpeedMax": 12,
+    "bonusChance": 0.08,
+    "critterSpeed": 1.5
+  },
+  "legend": {},
+  "layers": [
+    [
+      "rrrrrrrrrrrrr",
+      "ooooo?o?ooooo",
+      "yyyyyyyyyyyyy",
+      "gg?ggg@ggg?gg",
+      "ccccccccccccc",
+      "b.b.b.b.b.b.b",
+      ".............",
+      "..H..H.H..H.."
+    ],
+    [
+      "..rrr...rrr..",
+      "...ww...ww...",
+      ".............",
+      ".............",
+      ".............",
+      ".............",
+      ".............",
+      "............."
+    ],
+    [
+      "...p.....p...",
+      ".............",
+      ".............",
+      ".............",
+      ".............",
+      ".............",
+      ".............",
+      "............."
+    ]
+  ]
+}

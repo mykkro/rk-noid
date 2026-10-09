@@ -1,0 +1,60 @@
+{
+  "format": "rk-noid-level@1",
+  "name": "Iron Curtain",
+  "author": "rk/noid",
+  "description": "Steel walls and a back row of armored plates that only lasers can crack. Grab the L capsules.",
+  "i18n": {
+    "cs": { "name": "Železná opona", "description": "Ocelové zdi a zadní řada pancéřových plátů, které prorazí jen laser. Sbírej kapsle L." }
+  },
+  "cols": 13,
+  "rows": 10,
+  "settings": {
+    "ballSpeed": 8.5,
+    "ballSpeedMax": 13,
+    "bonusChance": 0.06,
+    "critterSpeed": 1.8,
+    "floorColor": "#cfe0ff",
+    "wallColor": "#d8e4ff"
+  },
+  "legend": {
+    "Q": { "type": "normal", "color": "#46c8ff", "drop": "catch", "tex": "bonus" }
+  },
+  "layers": [
+    [
+      "###AAAAAAA###",
+      "#bbbbbLbbbbb#",
+      "#ccccc?ccccc#",
+      "#..HHHHHHH..#",
+      "#..H@KKK@H..#",
+      "#..HHHHHHH..#",
+      "#...........#",
+      "###..L?L..###",
+      ".............",
+      "......Q......"
+    ],
+    [
+      "#..A.A.A.A..#",
+      "#...........#",
+      "#...........#",
+      "...HHHHHHH...",
+      "....KKKKK....",
+      ".............",
+      ".............",
+      "###.......###",
+      ".............",
+      "............."
+    ],
+    [
+      ".............",
+      "#...........#",
+      ".............",
+      ".............",
+      ".............",
+      ".............",
+      ".............",
+      "###.......###",
+      ".............",
+      "............."
+    ]
+  ]
+}

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>rk/noid level editor</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/editor.css">
+</head>
+<body class="editor">
+  <header class="ed-bar">
+    <a href="index.html" class="ed-logo" title="Back to the game"><img src="assets/logo.svg" alt="rk/noid"></a>
+    <span class="ed-title">Level editor</span>
+    <button id="newBtn" class="btn">New</button>
+    <button id="openBtn" class="btn">Open…</button>
+    <select id="demoSelect" class="btn" title="Load a bundled level"><option value="">Bundled levels…</option></select>
+    <button id="downloadBtn" class="btn">Download JSON</button>
+    <button id="copyBtn" class="btn">Copy JSON</button>
+    <button id="undoBtn" class="btn" title="Ctrl+Z">↶ Undo</button>
+    <button id="redoBtn" class="btn" title="Ctrl+Y">↷ Redo</button>
+    <span class="grow"></span>
+    <button id="testBtn" class="btn primary">▶ Test play</button>
+    <input id="openInput" type="file" accept=".json,application/json" hidden>
+  </header>
+
+  <main class="ed-main">
+    <!-- left: level properties -->
+    <aside class="ed-side">
+      <section>
+        <h3>Level</h3>
+        <label>Name <input id="f_name" type="text"></label>
+        <label>Author <input id="f_author" type="text"></label>
+        <label>Description <textarea id="f_description" rows="2"></textarea></label>
+        <div class="two">
+          <label>Columns <input id="f_cols" type="number" min="3" max="31"></label>
+          <label>Rows <input id="f_rows" type="number" min="1" max="30"></label>
+        </div>
+      </section>
+      <section>
+        <h3>Settings</h3>
+        <div class="two">
+          <label>Ball speed <input id="s_ballSpeed" type="number" step="0.5" min="3" max="20"></label>
+          <label>Max speed <input id="s_ballSpeedMax" type="number" step="0.5" min="3" max="25"></label>
+          <label>Bonus chance <input id="s_bonusChance" type="number" step="0.01" min="0" max="1"></label>
+          <label>Critter speed <input id="s_critterSpeed" type="number" step="0.1" min="0.3" max="6"></label>
+          <label>Field depth <input id="s_depth" type="number" step="0.5" min="0" max="40" title="0 = automatic"></label>
+          <label>Back gap <input id="s_backGap" type="number" step="0.1" min="0" max="5"></label>
+          <label>Floor tint <input id="s_floorColor" type="color"></label>
+          <label>Wall tint <input id="s_wallColor" type="color"></label>
+        </div>
+        <label>Critter touches bat
+          <select id="s_critterMode">
+            <option value="gameover">Game over</option>
+            <option value="life">Lose a life</option>
+          </select>
+        </label>
+      </section>
+      <section>
+        <h3>Check</h3>
+        <div id="stats" class="stats"></div>
+        <ul id="problems" class="problems"></ul>
+      </section>
+      <details>
+        <summary>Raw JSON</summary>
+        <textarea id="jsonArea" rows="14" spellcheck="false"></textarea>
+        <button id="applyJsonBtn" class="btn">Apply JSON</button>
+      </details>
+    </aside>
+
+    <!-- centre: grid editor -->
+    <section class="ed-center">
+      <div class="ed-tools">
+        <div class="seg" id="modeSeg">
+          <button data-mode="stack" class="on" title="Click pushes a brick on top of the stack, right-click removes the top brick">Stack mode</button>
+          <button data-mode="layer" title="Edit one horizontal layer at a time">Layer mode</button>
+        </div>
+        <div class="seg" id="layerSeg"></div>
+        <button id="addLayerBtn" class="btn sm" title="Add layer">+ layer</button>
+        <button id="delLayerBtn" class="btn sm" title="Remove current layer">− layer</button>
+        <div class="seg" id="toolSeg">
+          <button data-tool="paint" class="on">Paint</button>
+          <button data-tool="erase">Erase</button>
+          <button data-tool="fill" title="Fill a rectangle: drag across cells">Rect</button>
+          <button data-tool="pick" title="Alt+click also picks">Pick</button>
+        </div>
+        <button id="mirrorBtn" class="btn sm" title="Mirror left half onto right half">Mirror ⇆</button>
+        <button id="clearBtn" class="btn sm">Clear</button>
+      </div>
+      <div class="ed-gridwrap">
+        <canvas id="grid"></canvas>
+        <div class="ed-gridhint">Back wall ↑ · player side ↓ &nbsp;|&nbsp; Left-click: paint · Right-click: erase · Alt-click: pick · <span id="cellInfo"></span></div>
+      </div>
+      <div class="ed-palette">
+        <div id="palette" class="palette"></div>
+        <div class="entry" id="entryEditor">
+          <h3>Brick type <span id="entryKey" class="keychip"></span></h3>
+          <div class="entry-grid">
+            <label>Char <input id="e_key" type="text" maxlength="1"></label>
+            <label>Type
+              <select id="e_type">
+                <option value="normal">normal</option>
+                <option value="hard">hard</option>
+                <option value="steel">steel (indestructible)</option>
+                <option value="armored">armored (laser only)</option>
+                <option value="explosive">explosive</option>
+              </select>
+            </label>
+            <label>Colour <input id="e_color" type="color"></label>
+            <label>Hits <input id="e_hits" type="number" min="1" max="9"></label>
+            <label>Drop
+              <select id="e_drop"></select>
+            </label>
+            <label>Texture
+              <select id="e_tex">
+                <option value="">(type default)</option>
+                <option value="brick">brick</option>
+                <option value="hard">hard</option>
+                <option value="bonus">bonus ?</option>
+                <option value="critterBrick">critter eyes</option>
+                <option value="explosive">explosive</option>
+                <option value="armored">armored</option>
+                <option value="steel">steel</option>
+              </select>
+            </label>
+            <label class="check"><input id="e_critter" type="checkbox"> Releases a critter</label>
+          </div>
+          <div class="row">
+            <button id="newEntryBtn" class="btn sm">+ New brick type</button>
+            <button id="delEntryBtn" class="btn sm">Delete / reset</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- right: live 3D preview -->
+    <section class="ed-preview">
+      <canvas id="preview"></canvas>
+      <div class="ed-prevhint">Drag to orbit · wheel to zoom · <kbd>V</kbd> camera preset</div>
+    </section>
+  </main>
+  <div id="toast" class="toast"></div>
+  <script type="module" src="js/editor.js"></script>
+</body>
+</html>

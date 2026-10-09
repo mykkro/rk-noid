@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>rk/noid</title>
+  <meta name="description" content="rk/noid - an isometric 3D brick breaker inspired by Arkanoid and Ballbreaker (ZX Spectrum).">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="view"></canvas>
+  <div id="fatal" class="fatal" hidden></div>
+
+  <!-- in-game HUD -->
+  <div id="hud" hidden>
+    <div class="hud-top">
+      <div class="hud-block"><label data-i18n="hud.score">Score</label><span id="score">000000</span></div>
+      <div class="hud-block"><label data-i18n="hud.hi">Hi</label><span id="hiscore">000000</span></div>
+      <div class="hud-block"><label data-i18n="hud.lives">Lives</label><span id="lives" class="lives"></span></div>
+      <div class="hud-block wide"><label data-i18n="hud.level">Level</label><span id="levelName"></span></div>
+      <div class="hud-spacer"></div>
+      <div class="hud-block right"><label><span data-i18n="hud.camera">Camera</span> <kbd>V</kbd></label><span id="camName"></span></div>
+    </div>
+    <div id="effects" class="effects"></div>
+    <div id="helpBar" class="help-bar">
+      <span data-i18n-html="help.move"></span>
+      <span data-i18n-html="help.fire"></span>
+      <span data-i18n-html="help.orbit"></span>
+      <span data-i18n-html="help.zoom"></span>
+      <span data-i18n-html="help.camera"></span>
+      <span data-i18n-html="help.ortho"></span>
+      <span data-i18n-html="help.reset"></span>
+      <span data-i18n-html="help.mute"></span>
+      <span data-i18n-html="help.pause"></span>
+      <span data-i18n-html="help.hide"></span>
+      <span id="fps" class="fps"></span>
+    </div>
+  </div>
+
+  <div id="message" class="message" hidden>
+    <div id="msgTitle" class="msg-title"></div>
+    <div id="msgSub" class="msg-sub"></div>
+    <div id="msgHint" class="msg-hint"></div>
+  </div>
+  <div id="toast" class="toast"></div>
+
+  <div id="pause" class="overlay" hidden>
+    <div class="panel small">
+      <h2 data-i18n="pause.title">Paused</h2>
+      <button id="resumeBtn" class="btn primary" data-i18n="pause.resume">Resume</button>
+      <button id="quitBtn" class="btn" data-i18n="pause.quit">Quit to menu</button>
+      <div class="lang-switch"></div>
+    </div>
+  </div>
+
+  <!-- title menu -->
+  <div id="menu" class="overlay menu">
+    <div class="lang-switch menu-lang"></div>
+    <div class="menu-inner">
+      <img src="assets/logo.svg" alt="rk/noid" class="logo">
+      <div class="menu-cols">
+        <div class="panel">
+          <button id="playBtn" class="btn primary big" data-i18n="menu.play">▶ Play</button>
+          <div class="hi"><span data-i18n="menu.hiscore">Hi-score</span> <span id="hiscoreMenu">000000</span></div>
+          <h3 data-i18n="menu.levels">Levels</h3>
+          <div id="levelList" class="level-list"></div>
+          <div id="loadNotice" class="notice" hidden></div>
+          <div class="row">
+            <button id="fileBtn" class="btn" data-i18n="menu.openFile">Open level file…</button>
+            <a class="btn" href="editor.html" data-i18n="menu.editor">Level editor</a>
+          </div>
+          <input id="fileInput" type="file" accept=".json,application/json" hidden>
+        </div>
+        <div class="panel howto">
+          <h3 data-i18n="menu.howto">How to play</h3>
+          <p data-i18n-html="menu.intro"></p>
+          <ul class="legend">
+            <li><i class="sw" style="--c:#e8473f"></i><span data-i18n-html="menu.brick.plain"></span></li>
+            <li><i class="sw" style="--c:#b8bcc8"></i><span data-i18n-html="menu.brick.hard"></span></li>
+            <li><i class="sw steel"></i><span data-i18n-html="menu.brick.steel"></span></li>
+            <li><i class="sw hazard"></i><span data-i18n-html="menu.brick.armored"></span></li>
+            <li><i class="sw" style="--c:#ff6a3a"></i><span data-i18n-html="menu.brick.explosive"></span></li>
+            <li><i class="sw" style="--c:#ffd84a">?</i><span data-i18n-html="menu.brick.bonus"></span></li>
+            <li><i class="sw" style="--c:#8fdc5a">👀</i><span data-i18n-html="menu.brick.critter"></span></li>
+          </ul>
+          <h3 data-i18n="menu.capsules">Capsules</h3>
+          <ul class="caps">
+            <li><i style="--c:#e8382e">L</i><span data-i18n="bonus.laser"></span></li>
+            <li><i style="--c:#2e6be8">E</i><span data-i18n="bonus.expand"></span></li>
+            <li><i style="--c:#ff9a1f">S</i><span data-i18n="bonus.slow"></span></li>
+            <li><i style="--c:#19c6d6">M</i><span data-i18n="bonus.multi"></span></li>
+            <li><i style="--c:#38c24a">C</i><span data-i18n="bonus.catch"></span></li>
+            <li><i style="--c:#c33be0">X</i><span data-i18n="bonus.mega"></span></li>
+            <li><i style="--c:#b0b0c0">P</i><span data-i18n="bonus.life"></span></li>
+          </ul>
+          <h3 data-i18n="menu.controls">Controls</h3>
+          <p class="keys" data-i18n-html="menu.keys"></p>
+        </div>
+      </div>
+      <div class="credits" data-i18n-html="menu.credits"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+{
+  "format": "rk-noid-level@1",
+  "name": "The Hive",
+  "author": "rk/noid",
+  "description": "Towers, explosives and a critter queen sealed in an armored core. Bring lasers.",
+  "i18n": {
+    "cs": { "name": "Úl", "description": "Věže, výbušniny a královna potvůrek zazděná v pancéřovém jádru. Přines si lasery." }
+  },
+  "cols": 15,
+  "rows": 11,
+  "settings": {
+    "ballSpeed": 9,
+    "ballSpeedMax": 14,
+    "bonusChance": 0.07,
+    "critterSpeed": 2.0,
+    "floorColor": "#ffd6e8",
+    "wallColor": "#ffc8d8"
+  },
+  "legend": {
+    "n": { "type": "hard", "hits": 2, "color": "#e85bb4", "drop": "multi" }
+  },
+  "layers": [
+    [
+      "#K#K#K#K#K#K#K#",
+      "XrrrrrXXXrrrrrX",
+      "rr@rr?rrr?rr@rr",
+      "ppppp#AAA#ppppp",
+      "pXp?p#A@A#p?pXp",
+      "ppppp#AAA#ppppp",
+      "..L.........L..",
+      "...............",
+      "mmm..yyyyy..mmm",
+      "m@m..yXyXy..m@m",
+      "mmm...nnn...mmm"
+    ],
+    [
+      "...............",
+      "Hr.r.rH.Hr.r.rH",
+      "rr.rr.rrr.rr.rr",
+      "ppppp#HHH#ppppp",
+      "p.p.p#HHH#p.p.p",
+      "ppppp#HHH#ppppp",
+      "...............",
+      "...............",
+      "mmm..yyyyy..mmm",
+      "m.m..y.y.y..m.m",
+      "mmm.........mmm"
+    ],
+    [
+      "...............",
+      "H.....H.H.....H",
+      "...............",
+      ".....#...#.....",
+      ".....#...#.....",
+      ".....#...#.....",
+      "...............",
+      "...............",
+      "m.m.........m.m",
+      "...............",
+      "m.m.........m.m"
+    ],
+    [
+      "...............",
+      "X.............X",
+      "...............",
+      ".....#...#.....",
+      ".....#...#.....",
+      ".....#...#.....",
+      "...............",
+      "...............",
+      "...............",
+      "...............",
+      "..............."
+    ]
+  ]
+}

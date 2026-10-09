@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>rk/noid soak test</title>
+  <style>
+    body { font: 14px/1.5 ui-monospace, Consolas, monospace; background: #111; color: #ddd; padding: 16px; }
+    table { border-collapse: collapse; }
+    td, th { border: 1px solid #444; padding: 4px 8px; text-align: right; }
+    th { background: #222; }
+    .ok { color: #7fe07a; } .bad { color: #ff7a6a; }
+  </style>
+</head>
+<body>
+  <h1>rk/noid soak test</h1>
+  <p>Runs every bundled level headlessly with the autopilot at a fixed time step and checks physics invariants.
+     Add <code>?seconds=600</code> to change the simulated time per level.</p>
+  <div id="out">running…</div>
+  <script type="module">
+    import { Game, BALL_R } from '../js/game.js';
+    import { parseLevel, CELL_W, CELL_D, BRICK_H } from '../js/level.js';
+
+    const params = new URLSearchParams(location.search);
+    const SECONDS = Number(params.get('seconds')) || 400;
+    const DT = 1 / 120;
+    const stubAssets = { meshes: new Proxy({}, { get: () => ({ vao: null, count: 0 }) }), tex: new Proxy({}, { get: () => null }) };
+    const sfx = { play() {} };
+
+    async function runLevel(file) {
+      const json = await (await fetch(`../levels/${file}`, { cache: 'no-store' })).json();
+      const { level, errors } = parseLevel(json);
+      if (errors.length) return { file, error: errors.join('; ') };
+      level.settings.critterMode = 'life'; // count critter hits instead of ending the run
+      const stats = { file, name: level.name, inside: 0, outside: 0, nan: 0, maxBalls: 0, critters: 0, bonuses: 0, livesLost: 0, drawErrors: 0 };
+      const game = new Game({ assets: stubAssets, sfx, onEvent(type) {
+        if (type === 'critter') stats.critters++;
+        if (type === 'bonus') stats.bonuses++;
+        if (type === 'lifeLost') stats.livesLost++;
+      } });
+      game.start([level], 0, { testMode: true });
+      const total = game.required;
+      let t = 0;
+      for (; t < SECONDS; t += DT) {
+        game.lives = 99;
+        game.update(DT, game.autopilot());
+        if (game.state === 'won' || game.state === 'over') break;
+        stats.maxBalls = Math.max(stats.maxBalls, game.balls.length);
+        const W2 = level.width / 2;
+        for (const b of game.balls) {
+          if (!Number.isFinite(b.x) || !Number.isFinite(b.z) || !Number.isFinite(b.vx)) stats.nan++;
+          if (b.x < -W2 - 0.01 || b.x > W2 + 0.01 || b.z < -0.01) stats.outside++;
+          // ball centre inside a solid brick cell = tunnelling
+          const [r, c] = game.cellAt(b.x, b.z);
+          if (game.solid(r, c) && game.effects.mega <= 0) stats.inside++;
+        }
+        if (Math.round(t / DT) % 600 === 0) {
+          try { game.draw([]); } catch (e) { stats.drawErrors++; console.error(e); }
+        }
+      }
+      stats.time = t.toFixed(0) + 's';
+      stats.state = game.state;
+      stats.cleared = `${total - Math.max(0, game.required)}/${total}`;
+      stats.score = game.score;
+      const left = {};
+      game.grid.forEach((row, r) => row.forEach((st, c) => st.forEach((b, i) => {
+        if (b.def.counts) left[b.def.type] = (left[b.def.type] || 0) + 1;
+      })));
+      stats.remaining = Object.entries(left).map(([k, v]) => `${k}:${v}`).join(' ') || '-';
+      stats.pityLasers = game.pityCount || 0;
+      return stats;
+    }
+
+    const out = document.getElementById('out');
+    try {
+      const idx = await (await fetch('../levels/index.json', { cache: 'no-store' })).json();
+      const rows = [];
+      for (const f of idx.levels) rows.push(await runLevel(f));
+      const cols = ['file', 'state', 'time', 'cleared', 'score', 'livesLost', 'critters', 'bonuses', 'maxBalls', 'inside', 'outside', 'nan', 'drawErrors', 'remaining', 'pityLasers'];
+      const bad = (r) => r.error || r.inside || r.outside || r.nan || r.drawErrors;
+      out.innerHTML = '<table><tr>' + cols.map((c) => `<th>${c}</th>`).join('') + '</tr>' +
+        rows.map((r) => `<tr class="${bad(r) ? 'bad' : 'ok'}">` + cols.map((c) => `<td>${r.error && c !== 'file' ? r.error : r[c] ?? ''}</td>`).join('') + '</tr>').join('') +
+        '</table>' + `<p id="verdict" class="${rows.some(bad) ? 'bad' : 'ok'}">${rows.some(bad) ? 'FAIL' : 'PASS'}</p>`;
+    } catch (e) {
+      out.innerHTML = `<p id="verdict" class="bad">ERROR ${e.stack || e}</p>`;
+    }
+  </script>
+</body>
+</html>
