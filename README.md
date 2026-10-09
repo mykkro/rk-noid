@@ -43,6 +43,13 @@ You need a browser with WebGL2: any current Chrome, Edge, Firefox or Safari.
 | Mute | | `M` |
 | Hide the help bar | | `H` |
 
+### Language
+
+The game and the editor are available in **English** and **Czech**. Use the **EN | CZ** switch in the top-right
+corner of the menu, in the pause screen, or in the editor toolbar. The choice is remembered in `localStorage`.
+On a first visit the language follows the browser (Czech or Slovak browser → Czech). You can also force it in
+the URL with `?lang=cs` or `?lang=en`.
+
 Camera presets: **Isometric** (default, orthographic), **True iso 45°** (the classic Ballbreaker angle),
 **Arcade** (perspective from behind the bat), **Low chase** and **Top-down**. The two projections blend
 smoothly into each other.
@@ -102,21 +109,22 @@ the top-right corner with a countdown bar.
 
 Destroying a critter nest releases a little green critter. It walks toward the player's side, **homing in
 on your bat** with limited sideways speed, and climbs over any brick stacks in its path. **If it touches
-your bat, the game is over.** (A level can soften this to "lose a life" with `critterMode`.) You can deal
-with it in three ways:
+your bat, the game is over.** (A level can soften this to "lose a life" with `critterMode`.)
 
-* hit it with the ball, which squashes it for 250 points,
-* shoot it with lasers, or
-* dodge it: critters that walk past your bat line leave the arena.
+Your main defence is to **avoid it**: move the bat out of its way and let it walk past your bat line, where
+it leaves the arena. Because it turns slowly, it can be outrun. The ball can't hurt a critter; it just
+bounces off, and the critter flinches. That makes a critter in front of the bat an obstacle, and you still
+have to keep the ball in play while you dodge. Only two things kill it, each for 250 points:
 
-Explosions also kill critters standing nearby.
+* **laser** shots (grab an **L** capsule), and
+* **explosions** from an explosive brick going off nearby.
 
 ### Scoring
 
 | Event | Points |
 | --- | --- |
 | Normal / hard / explosive / armored brick | 50 / 120 / 80 / 200 |
-| Critter | 250 |
+| Critter (laser or explosion) | 250 |
 | Capsule collected | 100 |
 | Level clear | 1000 + 250 per remaining life |
 
@@ -187,6 +195,7 @@ the row nearest the player. Each character is one brick cell (1 unit wide, 0.5 u
 | --- | --- | --- |
 | `format` | no | Always `"rk-noid-level@1"`. Reserved so the format can be versioned later. |
 | `name`, `author`, `description` | no | Shown in the menu. |
+| `i18n` | no | Translations of `name` / `description`, keyed by language, e.g. `{ "cs": { "name": "Úl", "description": "…" } }`. Missing entries fall back to the top-level English text. |
 | `cols` | yes | Grid width, 3–31. |
 | `rows` | yes | Grid depth, 1–30. |
 | `layers` | yes | Array of layers. Each layer is an array of `rows` strings, each `cols` characters long. |
@@ -266,7 +275,8 @@ Open `editor.html` (or **Level editor** in the menu).
 * **Palette and brick type panel**: pick a legend entry, then edit its character, type, colour, hits, drop,
   texture and critter flag. **+ New brick type** creates a custom legend entry. Editing a built-in entry
   stores an override in the level's `legend`, and **Reset to default** removes it.
-* **Level / Settings** panels on the left hold everything from the format above. Changing columns or rows
+* **Level / Settings** panels on the left hold everything from the format above, including the Czech name
+  and description (stored in the level's `i18n` block). Changing columns or rows
   resizes every layer.
 * **Live 3D preview** on the right, using the game's own renderer. Drag to orbit, use the wheel to zoom, and
   press `V` to cycle camera presets. The cell under the cursor is highlighted in 3D.
@@ -296,6 +306,7 @@ js/meshes.js          procedural geometry (box, sphere, cylinder, capsule, quad)
 js/textures.js        procedural canvas textures (bricks, cracks, steel, hazard plates, floor, walls, capsules)
 js/audio.js           WebAudio beeper synth for the sound effects
 js/math.js            small matrix/vector helpers and a seeded PRNG
+js/i18n.js            English + Czech dictionaries, t()/tn() lookups, data-i18n DOM binding, language switch
 js/editor.js          level editor
 levels/               index.json + demo levels
 assets/               logo, favicon, cover art, screenshots
@@ -312,6 +323,20 @@ tests/soak.html       headless simulation test
   Brick textures are mostly grey and get tinted by each legend entry's colour.
 * The draw list is rebuilt every frame (a few hundred draw calls), which is plenty fast at this scale.
   Instancing would be the next step for much bigger levels.
+
+## Translations
+
+All UI text lives in `js/i18n.js`, in one dictionary per language (`STRINGS.en`, `STRINGS.cs`):
+
+* Static HTML gets its text from attributes: `data-i18n` (text), `data-i18n-html` (markup), `data-i18n-title`
+  and `data-i18n-placeholder`.
+* Scripts call `t('key', { param })`, or `tn('key', n)` for plurals. Plural forms are separated by `|`:
+  English has `one|other`, Czech has `one|few (2–4)|many`.
+* Level-validator messages are translated as well, so the editor's **Check** panel follows the selected
+  language.
+
+To add a language, add a dictionary to `STRINGS`, list it in `LANGS`, and extend `pluralIndex()` if its
+plural rules differ. Missing keys fall back to English.
 
 ## Testing
 
@@ -334,6 +359,7 @@ Developer URL flags for the game:
 | `?warp=S` | Fast-forward S seconds of autopilot play at startup (for screenshots) |
 | `?cam=N` | Start with camera preset N |
 | `?test=1` | Play the level stored by the editor's **Test play** |
+| `?lang=cs` / `?lang=en` | Force the UI language |
 
 `window.rknoid` exposes `{ game, camera, renderer }` in the browser console.
 

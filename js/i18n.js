@@ -43,7 +43,7 @@ const STRINGS = {
     'menu.brick.armored': '<b>Armored</b> lasers only',
     'menu.brick.explosive': '<b>Explosive</b> blows up its neighbours',
     'menu.brick.bonus': '<b>Bonus</b> drops a capsule',
-    'menu.brick.critter': '<b>Critter nest</b> releases a critter that crawls toward you. If it touches your bat it\'s <b>game over</b>, so shoot it or hit it with the ball.',
+    'menu.brick.critter': '<b>Critter nest</b> releases a critter that crawls toward you. If it touches your bat it\'s <b>game over</b>. Dodge it: the ball just bounces off it, only lasers can kill it.',
     'menu.capsules': 'Capsules',
     'menu.controls': 'Controls',
     'menu.keys': '<kbd>Mouse</kbd> or <kbd>←</kbd><kbd>→</kbd> move · <kbd>Click</kbd>/<kbd>Space</kbd> launch &amp; fire · <kbd>Right-drag</kbd> orbit · <kbd>Wheel</kbd> zoom · <kbd>V</kbd> camera preset · <kbd>O</kbd> ortho/persp · <kbd>P</kbd> pause',
@@ -251,7 +251,7 @@ const STRINGS = {
     'menu.brick.armored': '<b>Pancéřovaná</b> jen laserem',
     'menu.brick.explosive': '<b>Výbušná</b> zničí sousední cihly',
     'menu.brick.bonus': '<b>Bonusová</b> pustí kapsli',
-    'menu.brick.critter': '<b>Hnízdo potvůrek</b> vypustí potvůrku, která leze k tobě. Když se dotkne pálky, je <b>konec hry</b>, tak ji zastřel nebo zasáhni míčkem.',
+    'menu.brick.critter': '<b>Hnízdo potvůrek</b> vypustí potvůrku, která leze k tobě. Když se dotkne pálky, je <b>konec hry</b>. Uhni jí: míček se od ní jen odrazí, zabít ji jde jen laserem.',
     'menu.capsules': 'Kapsle',
     'menu.controls': 'Ovládání',
     'menu.keys': '<kbd>Myš</kbd> nebo <kbd>←</kbd><kbd>→</kbd> pohyb · <kbd>Klik</kbd>/<kbd>Mezerník</kbd> odpal a střelba · <kbd>Pravé tlačítko + tah</kbd> otáčení · <kbd>Kolečko</kbd> přiblížení · <kbd>V</kbd> předvolba kamery · <kbd>O</kbd> orto/persp · <kbd>P</kbd> pauza',
@@ -429,6 +429,10 @@ const STORAGE_KEY = 'rknoid.lang';
 const listeners = new Set();
 
 function detect() {
+  try {
+    const forced = new URLSearchParams(location.search).get('lang');
+    if (forced && STRINGS[forced]) return forced;
+  } catch { /* no location (tests) */ }
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved && STRINGS[saved]) return saved;

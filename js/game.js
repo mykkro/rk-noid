@@ -195,8 +195,8 @@ export class Game {
         ball.x += ball.vx * h;
         ball.z += ball.vz * h;
         this.collideWalls(ball);
-        this.collideBricks(ball);
         this.collideCritters(ball);
+        this.collideBricks(ball);
         this.collideBat(ball);
         if (ball.stuck) break;
         if (ball.z > L.depth + 0.6) { ball.dead = true; break; }
@@ -316,10 +316,14 @@ export class Game {
       if (cr.dead || cr.y > BRICK_H * 0.7) continue;
       const dx = ball.x - cr.x, dz = ball.z - cr.z, d = Math.hypot(dx, dz);
       if (d < BALL_R + CRITTER_R) {
-        const nx = dx / (d || 1), nz = dz / (d || 1);
+        // the ball can't hurt a critter: it just bounces off (only lasers and explosions kill it)
+        const nx = d > 1e-6 ? dx / d : 0, nz = d > 1e-6 ? dz / d : -1;
+        ball.x = cr.x + nx * (BALL_R + CRITTER_R);
+        ball.z = cr.z + nz * (BALL_R + CRITTER_R);
         const vd = ball.vx * nx + ball.vz * nz;
         if (vd < 0) { ball.vx -= 2 * vd * nx; ball.vz -= 2 * vd * nz; }
-        this.killCritter(cr);
+        if (cr.flinch <= 0) this.sfx.play('wall');
+        cr.flinch = 0.3;
       }
     }
   }
@@ -516,7 +520,7 @@ export class Game {
 
   // ---------------------------------------------------------------- critters
   spawnCritter(x, z) {
-    this.critters.push({ x, z: z + CELL_D * 0.6, y: 0, vy: 0, vx: 0, phase: Math.random() * 6, heading: 0, spawn: 0 });
+    this.critters.push({ x, z: z + CELL_D * 0.6, y: 0, vy: 0, vx: 0, phase: Math.random() * 6, heading: 0, spawn: 0, flinch: 0 });
     this.sfx.play('critter');
     this.onEvent('critter', {});
   }
@@ -538,6 +542,7 @@ export class Game {
     for (const cr of this.critters) {
       cr.spawn = Math.min(1, cr.spawn + dt * 2);
       cr.phase += dt * 9;
+      cr.flinch = Math.max(0, cr.flinch - dt);
       // home in on the bat, but with limited sideways speed so it can be dodged
       const lat = speed * 0.75;
       const want = clamp((bat.x - cr.x) * 1.5, -lat, lat) + Math.sin(this.time * 2.3 + cr.phase * 0.1) * 0.4;
@@ -714,8 +719,11 @@ export class Game {
     const m = this.assets.meshes, t = this.assets.tex;
     const s = 0.3 + cr.spawn * 0.7;
     const bob = Math.abs(Math.sin(cr.phase)) * 0.05;
-    const parent = compose(mat4(), [cr.x, cr.y + bob, cr.z], [0, cr.heading, 0], [s, s, s]);
-    list.push(childItem(parent, m.sphere, [0, 0.3, 0], [0.15, 0, 0], [0.3, 0.24, 0.34], { tex: t.critter, spec: 0.5 }));
+    const f = cr.flinch / 0.3; // squash + flash when the ball bounces off it
+    const parent = compose(mat4(), [cr.x, cr.y + bob, cr.z], [0, cr.heading, 0], [s * (1 + f * 0.25), s * (1 - f * 0.3), s * (1 + f * 0.25)]);
+    list.push(childItem(parent, m.sphere, [0, 0.3, 0], [0.15, 0, 0], [0.3, 0.24, 0.34], {
+      tex: t.critter, spec: 0.5, emissive: f ? [f * 0.5, f * 0.5, f * 0.4] : null,
+    }));
     for (const sx of [-1, 1]) {
       list.push(childItem(parent, m.sphere, [sx * 0.12, 0.44, 0.22], null, [0.09, 0.1, 0.09], { color: [1, 1, 1], spec: 1 }));
       list.push(childItem(parent, m.sphereLow, [sx * 0.12, 0.45, 0.3], null, [0.045, 0.05, 0.03], { color: [0.05, 0.05, 0.05] }));

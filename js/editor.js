@@ -6,6 +6,7 @@ import { OrbitCamera } from './camera.js';
 import {
   parseLevel, blankLevel, DEFAULT_LEGEND, DEFAULT_SETTINGS, BONUS_TYPES, EMPTY_CHARS, FORMAT, BRICK_H,
 } from './level.js';
+import { t, tn, applyI18n, mountLangSwitch, onLangChange } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 const store = {
@@ -41,6 +42,7 @@ function sanitize(j) {
     name: String(j.name ?? 'Untitled'),
     author: String(j.author ?? ''),
     description: String(j.description ?? ''),
+    i18n: j.i18n && typeof j.i18n === 'object' ? JSON.parse(JSON.stringify(j.i18n)) : {},
     cols, rows,
     settings: j.settings && typeof j.settings === 'object' ? { ...j.settings } : {},
     legend: j.legend && typeof j.legend === 'object' ? JSON.parse(JSON.stringify(j.legend)) : {},
@@ -148,6 +150,7 @@ function exportObject() {
     name: doc.name,
     author: doc.author,
     description: doc.description,
+    ...(Object.keys(doc.i18n || {}).length ? { i18n: doc.i18n } : {}),
     cols: doc.cols,
     rows: doc.rows,
     settings: doc.settings,
@@ -174,6 +177,8 @@ function fillForms() {
   $('f_name').value = doc.name;
   $('f_author').value = doc.author;
   $('f_description').value = doc.description;
+  $('f_name_cs').value = doc.i18n?.cs?.name || '';
+  $('f_description_cs').value = doc.i18n?.cs?.description || '';
   $('f_cols').value = doc.cols;
   $('f_rows').value = doc.rows;
   for (const k of SETTINGS_FIELDS) {
@@ -185,6 +190,16 @@ function fillForms() {
 function bindForms() {
   for (const k of ['name', 'author', 'description']) {
     $('f_' + k).addEventListener('change', (e) => { snapshot(); doc[k] = e.target.value; changed(); });
+  }
+  for (const k of ['name', 'description']) {
+    $(`f_${k}_cs`).addEventListener('change', (e) => {
+      snapshot();
+      doc.i18n = doc.i18n || {};
+      const cs = { ...(doc.i18n.cs || {}) };
+      if (e.target.value.trim()) cs[k] = e.target.value; else delete cs[k];
+      if (Object.keys(cs).length) doc.i18n.cs = cs; else delete doc.i18n.cs;
+      changed();
+    });
   }
   for (const k of ['cols', 'rows']) {
     $('f_' + k).addEventListener('change', () => {
@@ -212,7 +227,7 @@ function buildLayerTabs() {
   seg.innerHTML = '';
   doc.layers.forEach((_, i) => {
     const b = document.createElement('button');
-    b.textContent = i === 0 ? 'L0 ground' : `L${i}`;
+    b.textContent = i === 0 ? t('ed.layerGround') : t('ed.layerN', { n: i });
     b.className = ui.layer === i ? 'on' : '';
     b.disabled = ui.mode !== 'layer';
     b.onclick = () => { ui.layer = i; changed(); };
@@ -257,7 +272,7 @@ function bindTools() {
     changed();
   };
   $('clearBtn').onclick = () => {
-    if (!confirm('Remove all bricks?')) return;
+    if (!confirm(t('ed.confirmClear'))) return;
     snapshot();
     doc.layers = [emptyLayer()];
     changed();
@@ -279,21 +294,19 @@ function buildPalette() {
     b.className = `pal ${e.type} ${key === ui.brush ? 'on' : ''}`;
     b.style.setProperty('--c', e.color || '#fff');
     const extra = e.critter ? 'oo' : e.drop ? (e.drop === 'random' ? '?' : '+') : '';
-    b.innerHTML = `${escapeHtml(key)}${extra ? ' ' + extra : ''}<small>${TYPE_ABBR[e.type] || ''}</small>`;
+    b.innerHTML = `${escapeHtml(key)}${extra ? ' ' + extra : ''}<small>${e.type === 'normal' ? '' : t(`abbr.${e.type}`)}</small>`;
     b.title = describe(key, e);
     b.onclick = () => { ui.brush = key; if (ui.tool === 'erase' || ui.tool === 'pick') setTool('paint'); changed(); };
     box.appendChild(b);
   }
 }
 
-const TYPE_ABBR = { normal: '', hard: 'hard', steel: 'steel', armored: 'armor', explosive: 'boom' };
-
 function describe(key, e) {
-  const parts = [`"${key}" ${e.type}`];
-  if (e.hits) parts.push(`${e.hits} hits`);
-  if (e.drop) parts.push(`drops ${e.drop}`);
-  if (e.critter) parts.push('releases a critter');
-  if (doc.legend[key]) parts.push(DEFAULT_LEGEND[key] ? '(overridden)' : '(custom)');
+  const parts = [`"${key}" ${t(`type.${e.type}`)}`];
+  if (e.hits) parts.push(tn('ed.desc.hits', e.hits));
+  if (e.drop) parts.push(t('ed.desc.drops', { drop: e.drop === 'random' ? t('ed.dropRandom') : t(`bonus.${e.drop}`) }));
+  if (e.critter) parts.push(t('ed.desc.critter'));
+  if (doc.legend[key]) parts.push(t(DEFAULT_LEGEND[key] ? 'ed.desc.overridden' : 'ed.desc.custom'));
   return parts.join(', ');
 }
 
@@ -313,7 +326,7 @@ function fillEntryEditor() {
   $('e_drop').value = e.drop || '';
   $('e_tex').value = e.tex || '';
   $('e_critter').checked = !!e.critter;
-  $('delEntryBtn').textContent = DEFAULT_LEGEND[key] ? 'Reset to default' : 'Delete type';
+  $('delEntryBtn').textContent = t(DEFAULT_LEGEND[key] ? 'ed.reset' : 'ed.deleteType');
   $('delEntryBtn').disabled = DEFAULT_LEGEND[key] && !doc.legend[key];
 }
 
@@ -334,10 +347,13 @@ function updateEntry(patch) {
   changed();
 }
 
+function fillDropOptions() {
+  $('e_drop').innerHTML = `<option value="">${t('ed.dropNone')}</option><option value="random">${t('ed.dropRandom')}</option>` +
+    Object.keys(BONUS_TYPES).map((k) => `<option value="${k}">${t(`bonus.${k}`)}</option>`).join('');
+}
+
 function bindEntryEditor() {
-  const drop = $('e_drop');
-  drop.innerHTML = '<option value="">none</option><option value="random">random bonus</option>' +
-    Object.entries(BONUS_TYPES).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('');
+  fillDropOptions();
   $('e_type').onchange = (e) => updateEntry({ type: e.target.value });
   $('e_color').onchange = (e) => updateEntry({ color: e.target.value });
   $('e_hits').onchange = (e) => updateEntry({ hits: Math.max(1, Math.min(9, e.target.value | 0)) });
@@ -348,8 +364,8 @@ function bindEntryEditor() {
     const nk = e.target.value;
     const old = ui.brush;
     if (nk === old) return;
-    if (nk.length !== 1 || isEmpty(nk) || nk === '"' || nk === '\\') { toast('Pick a single character other than . _ space " \\'); fillEntryEditor(); return; }
-    if (legend()[nk]) { toast(`"${nk}" is already used`); fillEntryEditor(); return; }
+    if (nk.length !== 1 || isEmpty(nk) || nk === '"' || nk === '\\') { toast(t('ed.badChar')); fillEntryEditor(); return; }
+    if (legend()[nk]) { toast(t('ed.charUsed', { key: nk })); fillEntryEditor(); return; }
     snapshot();
     doc.legend[nk] = { ...legend()[old] };
     if (!DEFAULT_LEGEND[old]) delete doc.legend[old];
@@ -361,7 +377,7 @@ function bindEntryEditor() {
     const pool = 'abdefhijklnqstuvxzBCDEFGIJMNOPRSTUVWYZ0123456789!$%&*+=<>';
     const L = legend();
     const ch = [...pool].find((x) => !L[x]);
-    if (!ch) { toast('No free characters left'); return; }
+    if (!ch) { toast(t('ed.noFreeChars')); return; }
     snapshot();
     const hue = Math.floor(Math.random() * 360);
     doc.legend[ch] = { type: 'normal', color: hslHex(hue, 70, 58) };
@@ -371,9 +387,9 @@ function bindEntryEditor() {
   $('delEntryBtn').onclick = () => {
     const key = ui.brush;
     snapshot();
-    if (DEFAULT_LEGEND[key]) { delete doc.legend[key]; toast(`"${key}" reset to default`); changed(); return; }
+    if (DEFAULT_LEGEND[key]) { delete doc.legend[key]; toast(t('ed.resetDone', { key })); changed(); return; }
     const used = doc.layers.some((L) => L.some((row) => row.includes(key)));
-    if (used && !confirm(`"${key}" is used in the level. Delete it and remove those bricks?`)) { undoStack.pop(); return; }
+    if (used && !confirm(t('ed.confirmDelete', { key }))) { undoStack.pop(); return; }
     doc.layers = doc.layers.map((L) => L.map((row) => row.split(key).join('.')));
     delete doc.legend[key];
     ui.brush = 'r';
@@ -573,7 +589,7 @@ grid.addEventListener('pointerdown', (e) => {
 grid.addEventListener('pointermove', (e) => {
   const cell = cellFromEvent(e);
   ui.hover = cell;
-  $('cellInfo').textContent = cell ? `row ${cell.r}, col ${cell.c}, stack ${stack(cell.r, cell.c).join('') || '—'}` : '';
+  $('cellInfo').textContent = cell ? t('ed.cellInfo', { r: cell.r, c: cell.c, s: stack(cell.r, cell.c).join('') || '—' }) : '';
   if (stroke && cell) {
     if (ui.rect) ui.rect.b = cell;
     else { applyAt(cell, stroke.erase); changed(); return; }
@@ -612,13 +628,13 @@ function validate() {
       }
     }
   }
-  $('stats').innerHTML = `Bricks: ${bricks} (${req} to clear)<br>Bonus bricks: ${drops} · Critter nests: ${critters}<br>Tallest stack: ${maxH} · Field depth: ${level ? level.depth.toFixed(1) : '?'}`;
+  $('stats').innerHTML = t('ed.stats', { n: bricks, req, d: drops, c: critters, h: maxH, depth: level ? level.depth.toFixed(1) : '?' });
   const ul = $('problems');
   ul.innerHTML = '';
   const add = (cls, t) => { const li = document.createElement('li'); li.className = cls; li.textContent = t; ul.appendChild(li); };
   errors.forEach((t) => add('err', t));
   [...new Set(warnings)].slice(0, 8).forEach((t) => add('warn', t));
-  if (!errors.length && !warnings.length) add('ok', 'Looks good');
+  if (!errors.length && !warnings.length) add('ok', t('ed.looksGood'));
 }
 
 // ------------------------------------------------------------------ 3D preview
@@ -694,14 +710,14 @@ function loadDoc(json, label) {
     doc = d;
     ui.layer = 0;
     changed(true);
-    toast(`Loaded ${label || doc.name}`);
+    toast(t('ed.loaded', { name: label || doc.name }));
   } catch (e) {
-    alert(`Could not load level: ${e.message}`);
+    alert(t('err.loadLevel', { msg: e.message }));
   }
 }
 
 $('newBtn').onclick = () => {
-  if (!confirm('Start a new empty level? (Undo can bring the old one back.)')) return;
+  if (!confirm(t('ed.confirmNew'))) return;
   snapshot();
   doc = sanitize(blankLevel(13, 8));
   changed(true);
@@ -710,7 +726,7 @@ $('openBtn').onclick = () => $('openInput').click();
 $('openInput').onchange = async (e) => {
   const f = e.target.files[0];
   if (!f) return;
-  try { loadDoc(JSON.parse(await f.text()), f.name); } catch (err) { alert(`Invalid JSON: ${err.message}`); }
+  try { loadDoc(JSON.parse(await f.text()), f.name); } catch (err) { alert(t('err.invalidJson', { msg: err.message })); }
   e.target.value = '';
 };
 $('downloadBtn').onclick = () => {
@@ -722,18 +738,18 @@ $('downloadBtn').onclick = () => {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 };
 $('copyBtn').onclick = async () => {
-  try { await navigator.clipboard.writeText(exportJson()); toast('JSON copied'); } catch { toast('Clipboard not available'); }
+  try { await navigator.clipboard.writeText(exportJson()); toast(t('ed.copied')); } catch { toast(t('ed.noClipboard')); }
 };
 $('testBtn').onclick = () => {
   const { errors } = parseLevel(exportObject());
-  if (errors.length) { alert(`Fix these first:\n${errors.join('\n')}`); return; }
+  if (errors.length) { alert(`${t('ed.fixFirst')}\n${errors.join('\n')}`); return; }
   store.set('rknoid.testLevel', exportJson());
   window.open('index.html?test=1', 'rknoid-test');
 };
 $('undoBtn').onclick = undo;
 $('redoBtn').onclick = redo;
 $('applyJsonBtn').onclick = () => {
-  try { loadDoc(JSON.parse($('jsonArea').value), 'JSON'); } catch (e) { alert(`Invalid JSON: ${e.message}`); }
+  try { loadDoc(JSON.parse($('jsonArea').value), 'JSON'); } catch (e) { alert(t('err.invalidJson', { msg: e.message })); }
 };
 $('demoSelect').onchange = async (e) => {
   const f = e.target.value;
@@ -742,7 +758,7 @@ $('demoSelect').onchange = async (e) => {
   try {
     const r = await fetch(`levels/${f}`, { cache: 'no-cache' });
     loadDoc(await r.json(), f);
-  } catch (err) { alert(`Could not fetch ${f}: ${err.message}`); }
+  } catch (err) { alert(t('ed.fetchFail', { f, msg: err.message })); }
 };
 
 window.addEventListener('keydown', (e) => {
@@ -773,6 +789,9 @@ function toast(text) {
 
 // ------------------------------------------------------------------ boot
 (async function boot() {
+  mountLangSwitch();
+  applyI18n();
+  onLangChange(() => { fillDropOptions(); changed(true); });
   bindForms();
   bindTools();
   bindEntryEditor();
